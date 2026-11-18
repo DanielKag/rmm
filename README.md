@@ -21,11 +21,24 @@ On a MacBook (APFS), removing a 200k-file tree took **5.6s with `rmm`** vs **12.
 brew install DanielKag/rmm/rmm
 ```
 
+Homebrew installs zsh, bash and fish completions. For zsh, make sure Homebrew's
+completions come first in your `fpath` (add this before `compinit` / oh-my-zsh is sourced):
+
+```sh
+FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+```
+
+This matters for `rmm` in particular: zsh ships a completion for the MH mail
+command of the same name, which otherwise wins and completes mail folders instead of paths.
+
 ### Cargo
 
 ```sh
 cargo install --git https://github.com/DanielKag/rmm
 ```
+
+Generate completions yourself with `rmm --completions <bash|zsh|fish>`, e.g.
+`rmm --completions zsh > ~/.oh-my-zsh/custom/completions/_rmm`.
 
 ## Usage
 

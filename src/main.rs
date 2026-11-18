@@ -7,7 +7,8 @@ use std::process::ExitCode;
 use std::sync::Arc;
 use std::time::Instant;
 
-use clap::Parser;
+use clap::{CommandFactory, Parser, ValueHint};
+use clap_complete::Shell;
 use indicatif::HumanCount;
 
 use engine::Engine;
@@ -18,7 +19,7 @@ use progress::{Stats, Ui};
 #[command(version)]
 struct Args {
     /// Files or directories to remove.
-    #[arg(required = true)]
+    #[arg(required_unless_present = "completions", value_hint = ValueHint::AnyPath)]
     paths: Vec<PathBuf>,
 
     /// Accepted for `rm` compatibility (always recursive).
@@ -40,11 +41,20 @@ struct Args {
     /// Allow removing `/` or your home directory.
     #[arg(long)]
     no_preserve_root: bool,
+
+    /// Print a shell completion script and exit.
+    #[arg(long, value_name = "SHELL", exclusive = true, hide = true)]
+    completions: Option<Shell>,
 }
 
 fn main() -> ExitCode {
     let args = Args::parse();
     let _ = (args.recursive, args.force);
+
+    if let Some(shell) = args.completions {
+        clap_complete::generate(shell, &mut Args::command(), "rmm", &mut std::io::stdout());
+        return ExitCode::SUCCESS;
+    }
 
     for p in &args.paths {
         if let Err(msg) = check_path(p, args.no_preserve_root) {

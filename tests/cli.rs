@@ -95,3 +95,12 @@ fn refuses_dot_and_root() {
         assert_eq!(out.status.code(), Some(2), "{p}");
     }
 }
+
+#[test]
+fn prints_completions() {
+    for shell in ["zsh", "bash", "fish"] {
+        let out = Command::new(env!("CARGO_BIN_EXE_rmm")).args(["--completions", shell]).output().unwrap();
+        assert!(out.status.success(), "{shell}");
+        assert!(String::from_utf8_lossy(&out.stdout).contains("rmm"), "{shell}");
+    }
+}
